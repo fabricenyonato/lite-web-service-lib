@@ -1,5 +1,5 @@
 <?php
-namespace Lib;
+namespace LiteWebServiceLib;
 
 
 abstract class HTTPStatusCode {

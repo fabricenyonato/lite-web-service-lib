@@ -1,9 +1,9 @@
 <?php
-namespace Lib;
+namespace LiteWebServiceLib;
 
 require_once __DIR__.'/HTTPStatusCode.php';
 
-use Lib\HTTPStatusCode;
+use LiteWebServiceLib\HTTPStatusCode;
 
 
 function request_methods($methods) {

@@ -1,10 +1,10 @@
 <?php
-namespace Lib;
+namespace LiteWebServiceLib;
 
 require_once __DIR__.'/HTTPStatusCode.php';
 require_once __DIR__.'/validators.php';
 
-use Lib\HTTPStatusCode;
+use LiteWebServiceLib\HTTPStatusCode;
 
 
 /* class QueryStringParameter {
@@ -70,13 +70,10 @@ class QueryStringParameter {
     private $_required = false;
     private $_validators = [];
 
-    public function __construct($key, $required = false, $validators = null) {
+    public function __construct($key, $required = false, array $validators = []) {
         $this->key = $key;
         $this->required = $required;
-        
-        if (!is_null($validators)) {
-            $this->_validators = is_array($validators) ? $validators : [$validators];
-        }
+        $this->_validators = $validators;
     }
 
     public function validate() {
@@ -85,18 +82,32 @@ class QueryStringParameter {
             echo json_encode(['error' => self::class.'['.$this->key.'] is required']);
             exit;
         }
+        
+        if (!isset($_GET[$this->key])) {
+            return;
+        }
 
         foreach ($this->_validators as $validator) {
-            if (function_exists($validator)) {
-                if (!$validator($_GET[$this->key])) {
+            $args = [&$_GET[$this->key]];
+            
+            if (is_array($validator)) {
+                $func = $validator[0];
+                $args = array_merge($args, array_slice($validator, 1));
+            }
+            else {
+                $func = $validator;
+            }
+            
+            if (function_exists($func)) {
+                if (!call_user_func_array($func, $args)) {
                     http_response_code(HTTPStatusCode::BAD_REQUEST);
-                    echo json_encode(['error' => self::class.'['.$this->key.'] has failed at '.$validator]);
+                    echo json_encode(['error' => self::class.'['.$this->key.'] has failed at '.$func]);
                     exit;
                 }
             }
             else {
                 http_response_code(HTTPStatusCode::INTERNAL_SERVER_ERROR);
-                echo json_encode(['error' => 'Function '.$validator.' not found']);
+                echo json_encode(['error' => 'Function '.$func.' not found']);
                 exit;
             }
         }
