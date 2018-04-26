@@ -11,15 +11,23 @@ class Validator {
     const STRING_LENGTH_INTERVAL = __NAMESPACE__.'\\string_length_interval_validator';
 }
 
+/**
+ * @param string $value
+ * @return boolean
+ */
 function integer_validator(&$value) {
     if (is_numeric($value) && preg_match('#^-?\d+$#', $value)) {
         $value = (int) $value;
         return true;
     }
-    
+
     return false;
 }
 
+/**
+ * @param string $value
+ * @return boolean
+ */
 function decimal_validator(&$value) {
     if (is_numeric($value) && preg_match('#^-?\d*\.?\d*$#', $value)) {
         $value = (float) $value;
@@ -55,15 +63,15 @@ function number_interval_validator($value, $min, $max) {
     if (!is_null($min) && is_null($max)) {
         return $min < $value;
     }
-    
+
     if (!is_null($max) && is_null($min)) {
         return $value < $max;
     }
-    
+
     if (!is_null($min) && !is_null($max)) {
         return $min < $value && $value < $max;
     }
-    
+
     return true;
 }
 
@@ -75,18 +83,18 @@ function number_interval_validator($value, $min, $max) {
  */
 function string_length_interval_validator($value, $min_length, $max_length) {
     $length = mb_strlen($value);
-    
+
     if (!is_null($min_length) && is_null($max_length)) {
         return $min_length < $length;
     }
-    
+
     if (!is_null($max_length) && is_null($min_length)) {
         return $length < $max_length;
     }
-    
+
     if (!is_null($min_length) && !is_null($max_length)) {
         return $min_length < $length && $length < $max_length;
     }
-    
+
     return true;
 }
